@@ -1,0 +1,117 @@
+#! /bin/bash
+echo "DateCheck"
+echo "-----------------------------"
+echo "This programm allows user to check if a chosen file was modified after a certain date"
+echo "-----------------------------"
+echo "Made by Laptev Pavel, gr. 738-1, TUSUR"
+echo "-----------------------------"
+
+fin_ans="y"
+while [ fin_ans != "n" ] #while cicle check not working, so another check in the end have been made
+do
+    cur_dir=$(pwd)
+    echo "Current dirrectory: $cur_dir"
+    echo "Enter name of the file, you want to check: "
+    read file_name
+    if [ -e $file_name ]
+        then
+        echo "Enter check date (YYYY-MM-DD): "
+        read check_date
+        modified_date=$(stat -c %z $cur_dir/$file_name)
+        echo "Modified date: $modified_date"
+
+        #get saperate from check date
+
+        for entry1 in $check_date
+            do
+            IFS=-
+            count1=1
+            for value in $entry1
+                do
+                if [ $count1 -eq 1 ]
+                    then
+                    check_year=$value
+                elif [ $count1 -eq 2 ]
+                    then
+                    check_mon=$value
+                elif [ $count1 -eq 3 ]
+                    then
+                    check_day=$value
+                fi
+                #echo "$value"
+                count1=$(( $count1 + 1 ))
+                done
+            done
+        #echo "year = $check_year , month = $check_mon , day = $check_day"
+
+        #get saperate from real date
+
+        tmp=0
+        IFS=" "
+        for entry2 in $modified_date
+            do
+            #echo $entry2
+            if [ $tmp -ne 0 ]
+                then
+                break
+            else
+                IFS=-
+                count2=1
+                for value in $entry2
+                    do
+                    if [ $count2 -eq 1 ]
+                        then
+                        mod_year=$value
+                    elif [ $count2 -eq 2 ]
+                        then
+                        mod_mon=$value
+                    elif [ $count2 -eq 3 ]
+                        then
+                        mod_day=$value
+                    fi
+                    #echo "$value"
+                    count2=$(( $count2 + 1 ))
+                    done
+            fi
+            tmp=$(( $tmp + 1 ))
+            done
+        #echo "mod. year = $mod_year , mod. month = $mod_mon , mod. day = $mod_day"
+
+        #check if was modified
+
+        #if [[ $mod_year -gt $check_year || $mod_mon -gt $check_mon || $mod_day -gt $check_mon ]]
+        #then
+        #echo "File was modified after $value1"
+        #elif [[ $mod_year -le $check_year && $mod_mon -le $check_mon && $mod_day -le $check_mon ]]
+        #then
+        #echo "File wasn't modified after $value1"
+        #fi
+
+        if [ $mod_year -le $check_year ]
+        then
+            if [ $mod_mon -le $check_mon ]
+            then
+                if [ $mod_day -le $check_day ]
+                then echo "File wasn't modified after $check_date"
+                else echo "File was modified after $check_date"
+                fi
+            else echo "File was modified after $check_date"
+            fi
+        else echo "File was modified after $check_date"
+        fi
+    else
+        echo "Can't find this file"
+    fi
+
+#ask to continue
+
+    echo "would you like to check another file?"
+    read fin_ans
+    #echo $fin_ans
+    if [ $fin_ans = "n" ]
+    then
+    break
+    fi
+done
+echo "Have a good day!"
+
